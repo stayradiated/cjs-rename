@@ -6,6 +6,9 @@
   "scripts": {
     "test": "node bin.js -t ./test/files/d.js -f ./test/files/b.js -s ./test/"
   },
+  "bin": {
+    "cjs-rename", "./bin/cjs-rename"
+  },
   "keywords": [
     "rename",
     "cjs",

@@ -38,11 +38,11 @@ rename.run(function (err, changes) {
 
 ## Todo
 
-- Save modified code back to disk
-- Figure out how to use the correct quotes with recast
+- Only add the '.js' extension if it was there before
 - Write tests
 - Improve command line interface
 - Add MIT license
+- Move files
 
 ## Changelog
 
