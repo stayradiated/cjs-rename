@@ -15,4 +15,7 @@ var rename = new Rename({
   folder: program.source
 });
 
-rename.init();
+rename.run(function () {
+  console.log(rename.changes);
+});
+

@@ -1,16 +1,12 @@
 'use strict';
 
-var readdir = require('recursive-readdir');
-var commander = require('commander');
-var fs = require('fs');
-var Path = require('path');
-var recast = require('recast');
-var traverse = require('ast-traverse');
-
-var builders = recast.types.builders;
-var types = recast.types.namedTypes;
+var Promise = require('bluebird');
+var readdir = Promise.promisify(require('recursive-readdir'));
+var fs      = Promise.promisifyAll(require('fs'));
+var Path    = require('path');
 
 var JS_EXTN = /\.js$/;
+var REQUIRE = /\brequire\s*\(\s*['"](\.[^'"]+)['"]\s*\)/g;
 
 // options = {
 // from: <path to old name>
@@ -19,62 +15,99 @@ var JS_EXTN = /\.js$/;
 // }
 
 function Rename (options) { 
-  console.log(options);
-
+  
+  // Required options
   if (! options.to) throw 'Must specify "options.to"';
   if (! options.from) throw 'Must specify "options.from"';
   if (! options.folder) throw 'Must specify "options.folder"';
 
-  this.from = Path.resolve(__dirname, options.from);
-  this.folder = Path.resolve(__dirname, options.folder);
-  this.to = options.to;
+  // Expand relative paths
+  this.cwd    = options.cwd || process.cwd();
+  this.from   = Path.resolve(this.cwd, options.from);
+  this.folder = Path.resolve(this.cwd, options.folder);
+  this.to     = Path.resolve(this.cwd, options.to);
+
+  // Will store a record of all the files modified
+  this.changes = {};
 
   console.log(this);
-
 }
 
-Rename.prototype.init = function () {
+Rename.prototype.run = function (fn) {
   var self = this;
 
-  // TODO: use an array of folders
-  readdir(this.folder, function (err, files) {
+  return readdir(this.folder).then(function (files) {
 
-    if (err) {
-      return console.log('Error with folder', err);
-    }
+    var promises = [];
 
     for (var i = 0, len = files.length; i < len; i++) {
-      self._readFile(files[i]);
+      promises.push(self._readFile(files[i]));
     }
+
+    Promise.all(promises).then(function () {
+      fn(null, self.changes);
+    });
+
+  }).catch(function (err) {
+    fn(err);
   });
 
 };
 
 Rename.prototype._readFile = function _readFile (path) {
   var self = this;
-  fs.readFile(path, function (err, contents) {
-    if (err) {
-      console.log('Error parsing:' + path + '. Message:', err);
-    } else if (! JS_EXTN.test(path)) {
-      console.log('Ignoring', path);
-    } else {
-      self._parseFile(path, contents.toString());
-    }
+  return fs.readFileAsync(path).then(function (contents) {
+
+    // Ignore files that don't have the '.js' extension
+    if (! JS_EXTN.test(path)) return;
+
+    // Parse the file contents
+    self._replace(path, contents.toString());
+
+  }).catch(function (err) {
+
+    // log files that could not be read
+    console.log('Error reading:' + path + '. Message:', err);
+
   });
+
 };
 
-Rename.prototype._parseFile = function _parseFile (filepath, contents) {
+Rename.prototype._replace = function _parseFile (filepath, contents) {
+  var self = this;
+  var changes = 0;
+  var folder = Path.dirname(filepath);
 
-  console.log('\n===', filepath);
+  var output = contents.replace(REQUIRE, function (line, path) {
 
-  var ast = recast.parse(contents);
-  var visitor = this._Visitor(filepath);
-  visitor.visit(ast);
+    // Get the full path to the required file
+    var fullPath = Path.resolve(folder, path);
 
-  if (visitor.modified) {
-    // console.log(recast.print(ast).code);
-  }
+    // Add the '.js' extension if it doesn't have it already
+    fullPath = self._forceExtension(fullPath);
 
+    // Check if the path matches what are are replacing
+    if (fullPath !== self.from) return line;
+
+    // Get the relative path to the new file from this file
+    var newPath = self._relative(folder);
+
+    changes += 1;
+    return line.replace(path, newPath);
+
+  });
+
+  // Don't do anything unless we made changes
+  if (! changes) return;
+
+  var relativeFilepath = Path.relative(this.cwd, filepath);
+
+  this.changes[relativeFilepath] = changes;
+
+  // Write to disk
+  // fs.writeFile(filepath, contents);
+
+  return output;
 };
 
 Rename.prototype._forceExtension = function _forceExtension (path) {
@@ -85,49 +118,12 @@ Rename.prototype._forceExtension = function _forceExtension (path) {
   }
 };
 
-Rename.prototype._Visitor = function (filepath) {
-  var self = this;
-  var visitor = null;
-  var Visitor =  recast.Visitor.extend({
-    visitCallExpression: function (node) {
-      var func = node.callee;
-
-      var isIdentifier = types.Identifier.check(func);
-      if (! isIdentifier) return;
-
-      var isRequire = func.name === 'require';
-      if (! isRequire) return;
-
-      var hasArg = node.arguments.length;
-      if (! hasArg) return;
-
-      var arg = node.arguments[0];
-
-      var argIsString = types.Literal.check(arg);
-      if (! argIsString) return;
-
-      var path = arg.value;
-
-      var isRelativePath = (path[0] === '.'); 
-      if (! isRelativePath) return;
-
-      var path = Path.resolve(self.folder, path);
-      path = self._forceExtension(path);
-
-      if (path !== self.from) return;
-
-      console.log(path);
-      visitor.modified = true;
-
-      // replace argument
-      arg.value = Path.relative(filepath, self.to);
-
-      console.log(arg);
-
-    }
-  });
-  visitor = new Visitor();
-  return visitor;
-};
+Rename.prototype._relative = function (folder) {
+  var path = Path.relative(folder, this.to);
+  if (path[0] !== '.') {
+    path = './' + path;
+  }
+  return path;
+}
 
 module.exports = Rename;

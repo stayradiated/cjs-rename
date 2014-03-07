@@ -17,6 +17,6 @@
   "dependencies": {
     "commander": "2.1.x",
     "recursive-readdir": "0.0.x",
-    "recast": "0.5.x"
+    "bluebird": "1.0.x"
   }
 }

@@ -2,7 +2,7 @@
 
 Inspired by https://github.com/timruffles/misnomer/blob/master/README.md.
 
-## Usage
+## CLI Usage
 
 ```
 // current usage
@@ -13,6 +13,27 @@ cjs-rename ../source/old.js new.js ../source
 
 // my idea - if no source is specified, use parent dir
 cjs-rename ../source/old.js new.js
+```
+
+## Module Usage
+
+```javascript
+var Rename = require('cjs-rename');
+
+var rename = new Rename({
+    cwd: '...', // optional
+    to: '...',
+    from: '...',
+    folder: '...'
+});
+
+rename.run(function (err, changes) {
+    if (err) {
+        console.log(err);
+    } else {
+        console.log(changes);
+    }
+});
 ```
 
 ## Todo
