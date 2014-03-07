@@ -4,7 +4,7 @@
   "description": "Rename a CJS file thing",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "node bin.js -t ./test/files/d.js -f ./test/files/b.js -s ./test/"
   },
   "keywords": [
     "rename",
