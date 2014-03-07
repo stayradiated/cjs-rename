@@ -21,9 +21,14 @@ cjs-rename ../source/old.js new.js
 - Figure out how to use the correct quotes with recast
 - Write tests
 - Improve command line interface
+- Add MIT license
 
 ## Changelog
 
 ### 0.0.1
 
 - Initial commit
+
+## License
+
+MIT
