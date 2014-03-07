@@ -1,0 +1,22 @@
+{
+  "name": "cjs-rename",
+  "version": "0.0.1",
+  "description": "Rename a CJS file thing",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "rename",
+    "cjs",
+    "require",
+    "common"
+  ],
+  "author": "George Czabania",
+  "license": "MIT",
+  "dependencies": {
+    "commander": "2.1.x",
+    "recursive-readdir": "0.0.x",
+    "recast": "0.5.x"
+  }
+}
