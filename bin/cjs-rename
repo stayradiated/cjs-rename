@@ -1,0 +1,35 @@
+#!/usr/bin/env node
+// vi:syntax=javascript
+
+var program = require('commander');
+var Rename = require('../index');
+
+program
+  .version('0.0.1')
+  .option('-f, --from [from]', 'Old name')
+  .option('-t, --to [to]', 'New name')
+  .option('-s, --source [source]', 'Source folder')
+
+program.parse(process.argv);
+
+var rename = new Rename({
+  to: program.to,
+  from: program.from,
+  folder: program.source
+});
+
+rename.run(function (err, changes) {
+
+  if (! changes.length) {
+    return console.log('No changes made');
+  }
+
+  console.log('Renaming:');
+
+  for (var i = 0, len = changes.length; i < len; i++) {
+    var change = changes[i];
+    console.log('-', change.path, 'fixed', change.count, 'require()s');
+  }
+
+});
+

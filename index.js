@@ -28,9 +28,7 @@ function Rename (options) {
   this.to     = Path.resolve(this.cwd, options.to);
 
   // Will store a record of all the files modified
-  this.changes = {};
-
-  console.log(this);
+  this.changes = [];
 }
 
 Rename.prototype.run = function (fn) {
@@ -102,12 +100,13 @@ Rename.prototype._replace = function _parseFile (filepath, contents) {
 
   var relativeFilepath = Path.relative(this.cwd, filepath);
 
-  this.changes[relativeFilepath] = changes;
+  this.changes.push({
+    path: relativeFilepath,
+    count: changes
+  });
 
   // Write to disk
-  // fs.writeFile(filepath, contents);
-
-  return output;
+  return fs.writeFileAsync(filepath, output);
 };
 
 Rename.prototype._forceExtension = function _forceExtension (path) {
