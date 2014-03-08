@@ -3,33 +3,42 @@
 
 var program = require('commander');
 var Rename = require('../index');
+var package = require('../package.json');
 
 program
-  .version('0.0.1')
-  .option('-f, --from [from]', 'Old name')
-  .option('-t, --to [to]', 'New name')
-  .option('-s, --source [source]', 'Source folder')
+  .version(package.version)
+  .command('*')
+  .description('cjs-rename [from] [to] [source...]')
+  .action(command);
 
 program.parse(process.argv);
 
-var rename = new Rename({
-  to: program.to,
-  from: program.from,
-  folder: program.source
-});
+// Show help if no args
+if (! program.args.length) {
+  console.log(program.help());
+}
 
-rename.run(function (err, changes) {
+function command (from, to, source) {
 
-  if (! changes.length) {
-    return console.log('No changes made');
-  }
+  var rename = new Rename({
+    to: to,
+    from: from,
+    folder: source
+  });
 
-  console.log('Renaming:');
+  rename.run(function (err, changes) {
 
-  for (var i = 0, len = changes.length; i < len; i++) {
-    var change = changes[i];
-    console.log('-', change.path, 'fixed', change.count, 'require()s');
-  }
+    if (! changes.length) {
+      return console.log('No changes made');
+    }
 
-});
+    console.log('Renaming:');
 
+    for (var i = 0, len = changes.length; i < len; i++) {
+      var change = changes[i];
+      console.log('-', change.path, 'fixed', change.count, 'require()s');
+    }
+
+  });
+
+};

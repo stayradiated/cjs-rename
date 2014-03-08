@@ -5,8 +5,8 @@ Inspired by https://github.com/timruffles/misnomer/blob/master/README.md.
 ## CLI Usage
 
 ```
-// current usage
-cjs-rename -t ../source/old.js -f ../source/new.js -s ../source
+// current usage - [from] [to] [source]
+cjs-rename source/old.js source/new.js source
 
 // timruffles idea - only specify file names, not paths
 cjs-rename old.js new.js ../source
