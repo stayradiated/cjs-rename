@@ -5,6 +5,13 @@ var ncp = require('ncp');
 var TESTDIR = __dirname + '/testdir';
 var TESTDIR_BACKUP = __dirname + '/testdir-backup';
 
+var SAMPLE = {
+  cwd: '/Home',
+  to: '/new.js',
+  from: '/old.js',
+  folder: '.'
+};
+
 describe('cjs-rename', function () {
 
   before(function (done) {
@@ -26,7 +33,20 @@ describe('cjs-rename', function () {
     assert.equal(rename.folder, '/Home/files');
   });
 
+  it('should work without "new" keyword', function () {
+    var rename = Rename(SAMPLE);
+
+    assert(rename instanceof Rename);
+    assert.equal(rename.cwd, '/Home');
+  });
+
   it('should rename files', function (done) {
+
+    var expectedChanges = [
+      { path: 'testdir/extension.js', count: 2 },
+      { path: 'testdir/quotes.js', count: 2 },
+      { path: 'testdir/folder/parent.js', count: 1 }
+    ];
 
     var rename = new Rename({
       cwd: __dirname,
@@ -37,10 +57,23 @@ describe('cjs-rename', function () {
 
     rename.run(function (err, changes) {
       assert.ifError(err);
-      console.log(changes);
+      assert.deepEqual(changes, expectedChanges);
       done();
     });
+  });
 
+  it('should add extension', function () {
+    var rename = new Rename(SAMPLE);
+
+    assert.equal(rename._addExtension('test'), 'test.js');
+    assert.equal(rename._addExtension('test.js'), 'test.js');
+  });
+
+  it('should create relative paths', function () {
+    var rename = new Rename(SAMPLE);
+
+    assert.equal(rename._relativeTo('/Home/folder'), '../../new.js');
+    assert.equal(rename._relativeTo('/Home'), '../new.js');
   });
 
 });

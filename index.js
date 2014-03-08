@@ -23,7 +23,8 @@ var READDIR_OPTIONS = {
 // }
 
 function Rename (options) { 
-  
+  if (! (this instanceof Rename)) return new Rename(options);
+
   // Required options
   if (! options.to) throw 'Must specify "options.to"';
   if (! options.from) throw 'Must specify "options.from"';
@@ -39,97 +40,130 @@ function Rename (options) {
   this.changes = [];
 }
 
-Rename.prototype.run = function (fn) {
+
+/**
+ * Run
+ *
+ * Start the rename process.
+ *
+ * - fn (function) : callback
+ */
+
+Rename.prototype.run = function run (fn) {
   var self = this;
 
   return readdir(this.folder, READDIR_OPTIONS).then(function (files) {
-
     var promises = [];
-
     for (var i = 0, len = files.length; i < len; i++) {
       promises.push(self._readFile(files[i]))
     }
-
-    Promise.all(promises).then(function () {
-      fn(null, self.changes);
-    });
-
+    return Promise.all(promises);
+  }).then(function () {
+    return fn(null, self.changes);
   }).catch(function (err) {
     fn(err);
-  });
+  }).done();
 
 };
+
+
+/**
+ * (Private) Read File
+ *
+ * Reads the contents of a file.
+ * Also handles errors.
+ *
+ * - path (string) : path to a file
+ * > promise > resolves with the output of `this._replace`
+ */
 
 Rename.prototype._readFile = function _readFile (path) {
   var self = this;
   return fs.readFileAsync(path).then(function (contents) {
-
-    // Ignore files that don't have the '.js' extension
-    if (! JS_EXTN.test(path)) return;
-
-    // Parse the file contents
-    self._replace(path, contents.toString());
-
+    return self._replace(path, contents.toString());
   }).catch(function (err) {
-
-    // log files that could not be read
     throw new Error('Error reading:' + path + '. Message:', err);
-
   });
-
 };
 
-Rename.prototype._replace = function _parseFile (filepath, contents) {
+/*
+ * (Private) Replace
+ *
+ * This function does most of the work.
+ *
+ * 1. Get the path to the folder that the file is in.
+ * 2. Match any 'require()'s in the file contents
+ *    For each require:
+ *    3. Get the fullpath to the required file
+ *    4. Check the path against the path we are looking for
+ *    5. Replace the path with a relative path to the new file
+ *    6. Mark the file as modified
+ * 7. Check if we made any modifications
+ * 8. Add a new record to `this.changes`
+ * 9. Save the file
+ *
+ * - filepath (string) : path to the file
+ * - contents (string) : the contents of the file
+ * > undefined : if the file didn't change
+ * > promise : resolves when the file is written
+ */
+
+Rename.prototype._replace = function _replace (filepath, contents) {
   var self = this;
   var changes = 0;
   var folder = Path.dirname(filepath);
 
   var output = contents.replace(REQUIRE, function (line, path) {
-
-    // Get the full path to the required file
     var fullPath = Path.resolve(folder, path);
-
-    // Add the '.js' extension if it doesn't have it already
-    fullPath = self._forceExtension(fullPath);
-
-    // Check if the path matches what are are replacing
+    fullPath = self._addExtension(fullPath);
     if (fullPath !== self.from) return line;
 
-    // Get the relative path to the new file from this file
-    var newPath = self._relative(folder);
-
     changes += 1;
+    var newPath = self._relativeTo(folder);
     return line.replace(path, newPath);
-
   });
 
   // Don't do anything unless we made changes
   if (! changes) return;
 
+  // Update file
   var relativeFilepath = Path.relative(this.cwd, filepath);
-
-  this.changes.push({
-    path: relativeFilepath,
-    count: changes
-  });
-
-  // Write to disk
+  this.changes.push({ path: relativeFilepath, count: changes });
   return fs.writeFileAsync(filepath, output);
 };
 
-Rename.prototype._forceExtension = function _forceExtension (path) {
-  if (JS_EXTN.test(path)) {
-    return path;
-  } else {
-    return path + '.js';
-  }
+
+/*
+ * (Private) Add Extension
+ *
+ * Adds the '.js' extension to a path.
+ * If the path already has athe extension, it will not do anything.
+ * Used because 'require("./file")' don't require extensions.
+ *
+ * - path (string) : path to a js file. e.g. `./foo`
+ * > string : path to a js file with extension. e.g `./foo.js`
+ */
+
+Rename.prototype._addExtension = function _addExtension (path) {
+  if (JS_EXTN.test(path)) return path;
+  return path + '.js';
 };
 
-Rename.prototype._relative = function (folder) {
+
+
+/**
+ * (Private) Relative To
+ *
+ * Get the relative path to the `this.to` path from a folder.
+ * Used to get the new path for 'require("../some/relative/path")';
+ *
+ * - folder (string) : path to a folder. e.g. `/foo/bar`
+ * > string : relative path to `this.to`. e.g. `../bar/app.js`
+ */
+
+Rename.prototype._relativeTo = function _relativeTo (folder) {
   var path = Path.relative(folder, this.to);
-  if (path[0] !== '.') {
-    path = './' + path;
-  }
+  if (path[0] !== '.') path = './' + path;
   return path;
 }
 
