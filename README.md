@@ -8,11 +8,11 @@ Inspired by https://github.com/timruffles/misnomer/blob/master/README.md.
 // current usage
 cjs-rename -t ../source/old.js -f ../source/new.js -s ../source
 
-// timruffles idea
-cjs-rename ../source/old.js new.js ../source
+// timruffles idea - only specify file names, not paths
+cjs-rename old.js new.js ../source
 
-// my idea - if no source is specified, use parent dir
-cjs-rename ../source/old.js new.js
+// my idea - if no source is specified, use current dir
+cjs-rename old.js new.js
 ```
 
 ## Module Usage
@@ -45,6 +45,10 @@ rename.run(function (err, changes) {
 - Move files
 
 ## Changelog
+
+### 0.0.2
+
+- Add github page to package.json
 
 ### 0.0.1
 

@@ -1,6 +1,6 @@
 {
   "name": "cjs-rename",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Rename a CJS file thing",
   "main": "index.js",
   "scripts": {
@@ -9,14 +9,22 @@
   "bin": {
     "cjs-rename": "./bin/cjs-rename"
   },
+  "author": "George Czabania <george@czabania.com>",
+  "homepage": "https://github.com/stayradiated/cjs-rename",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/stayradiated/cjs-rename.git"
+  },
+  "bugs": {
+    "url": "https://github.com/stayradiated/cjs-rename/issues"
+  },
+  "license": "MIT",
   "keywords": [
     "rename",
     "cjs",
     "require",
     "common"
   ],
-  "author": "George Czabania",
-  "license": "MIT",
   "dependencies": {
     "commander": "2.1.x",
     "bluebird": "1.0.x",
