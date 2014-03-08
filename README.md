@@ -2,6 +2,12 @@
 
 Inspired by https://github.com/timruffles/misnomer/blob/master/README.md.
 
+## Install
+
+```
+npm install -g cjs-rename
+```
+
 ## CLI Usage
 
 ```
@@ -38,12 +44,20 @@ rename.run(function (err, changes) {
 
 ## Todo
 
-- Only add the '.js' extension if it was there before
-- Write tests
 - Improve command line interface
 - Move files
 
 ## Changelog
+
+## 0.0.3
+
+- Improve command line interface.
+- If the original 'require()' call didn't have the extension, than the replaced
+  path will not have the extension.
+- Make 'options.folder' optional. It now uses the current working directory.
+- Add 'options.dryrun'. If set to a truthy value, it will not save changes to
+  disk.
+- Add 'Rename.prototype.save'. This will write pending changes to disk.
 
 ### 0.0.2
 

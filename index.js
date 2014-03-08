@@ -16,25 +16,31 @@ var READDIR_OPTIONS = {
   }
 };
 
-// options = {
-// from: <path to old name>
-// to: <path to new name>
-// folder: [ <folders to rename files in> ]
-// }
 
-function Rename (options) { 
-  if (! (this instanceof Rename)) return new Rename(options);
+/**
+ * Rename
+ *
+ * - opts (object) : options
+ *   - from (string) : path to current file name
+ *   - to (string) : path to new file name
+ *   - folder (string) : path to folder to search
+ *   - [cwd] (string) : path to cwd 
+ *   - [save] (boolean) : whether to save changes or not
+ */
+
+function Rename (opts) { 
+  if (! (this instanceof Rename)) return new Rename(opts);
 
   // Required options
-  if (! options.to) throw 'Must specify "options.to"';
-  if (! options.from) throw 'Must specify "options.from"';
-  if (! options.folder) throw 'Must specify "options.folder"';
+  if (! opts.to) throw 'Must specify "options.to"';
+  if (! opts.from) throw 'Must specify "options.from"';
 
   // Expand relative paths
-  this.cwd    = options.cwd || process.cwd();
-  this.from   = Path.resolve(this.cwd, options.from);
-  this.folder = Path.resolve(this.cwd, options.folder);
-  this.to     = Path.resolve(this.cwd, options.to);
+  this.cwd    = opts.cwd || process.cwd();
+  this.from   = Path.resolve(this.cwd, opts.from);
+  this.folder = opts.folder ? Path.resolve(this.cwd, opts.folder) : this.cwd;
+  this.to     = Path.resolve(this.cwd, opts.to);
+  this.dryrun = !! opts.dryrun;
 
   // Will store a record of all the files modified
   this.changes = [];
@@ -46,25 +52,41 @@ function Rename (options) {
  *
  * Start the rename process.
  *
- * - fn (function) : callback
+ * - [fn] (function) : callback
+ * > promise
  */
 
 Rename.prototype.run = function run (fn) {
   var self = this;
 
-  return readdir(this.folder, READDIR_OPTIONS).then(function (files) {
-    var promises = [];
-    for (var i = 0, len = files.length; i < len; i++) {
-      promises.push(self._readFile(files[i]))
-    }
-    return Promise.all(promises);
+  return readdir(this.folder, READDIR_OPTIONS)
+  .map(function (file) {
+    return self._readFile(file);
   }).then(function () {
-    return fn(null, self.changes);
+    if (self.dryrun) return self.save();
+  }).then (function () {
+    if (fn) fn(null, self.changes);
+    return self.changes;
   }).catch(function (err) {
-    fn(err);
-  }).done();
+    if (fn) fn(err);
+    throw err;
+  });
 
 };
+
+
+/**
+ * Save
+ *
+ * Save changes to disk.
+ */
+
+Rename.prototype.save = function save () {
+  Promise.map(this.changes, function(file) {
+    fs.writeFileAsync(file.path, file.contents);
+  });
+};
+
 
 
 /**
@@ -79,6 +101,7 @@ Rename.prototype.run = function run (fn) {
 
 Rename.prototype._readFile = function _readFile (path) {
   var self = this;
+
   return fs.readFileAsync(path).then(function (contents) {
     return self._replace(path, contents.toString());
   }).catch(function (err) {
@@ -100,12 +123,10 @@ Rename.prototype._readFile = function _readFile (path) {
  *    6. Mark the file as modified
  * 7. Check if we made any modifications
  * 8. Add a new record to `this.changes`
- * 9. Save the file
  *
  * - filepath (string) : path to the file
  * - contents (string) : the contents of the file
- * > undefined : if the file didn't change
- * > promise : resolves when the file is written
+ * > boolean : if changes were made or not
  */
 
 Rename.prototype._replace = function _replace (filepath, contents) {
@@ -120,17 +141,18 @@ Rename.prototype._replace = function _replace (filepath, contents) {
 
     changes += 1;
     var newPath = self._relativeTo(folder);
+    newPath = self._fixExtension(newPath, path);
     return line.replace(path, newPath);
   });
 
   // Don't do anything unless we made changes
-  if (! changes) return;
+  if (! changes) return false;
 
-  // Update file
-  var relativeFilepath = Path.relative(this.cwd, filepath);
-  this.changes.push({ path: relativeFilepath, count: changes });
-  return fs.writeFileAsync(filepath, output);
+  // Add to pending
+  this.changes.push({ path: filepath, count: changes, contents: output });
+  return true;
 };
+
 
 
 /*
@@ -150,6 +172,25 @@ Rename.prototype._addExtension = function _addExtension (path) {
 };
 
 
+/*
+ * (Private) Fix Extension
+ *
+ * Adds or removes the '.js' extension from a path, depending if another path
+ * has that extension.
+ *
+ * - path (string) : path to fix
+ * - original (string) : path to match against
+ * > string : fixed path
+ */
+
+Rename.prototype._fixExtension = function _fixExtension (path, original) {
+  path = this._addExtension(path);
+  if (! JS_EXTN.test(original)) {
+    path = path.slice(0, -3);
+  }
+  return path;
+};
+
 
 /**
  * (Private) Relative To
@@ -165,6 +206,6 @@ Rename.prototype._relativeTo = function _relativeTo (folder) {
   var path = Path.relative(folder, this.to);
   if (path[0] !== '.') path = './' + path;
   return path;
-}
+};
 
 module.exports = Rename;

@@ -1,9 +1,11 @@
 var assert = require('assert');
 var Rename = require('../index');
 var ncp = require('ncp');
+var fs = require('fs');
 
 var TESTDIR = __dirname + '/testdir';
-var TESTDIR_BACKUP = __dirname + '/testdir-backup';
+var BACKUP = __dirname + '/testdir-backup';
+var EXPECTED = __dirname + '/testdir-expected';
 
 var SAMPLE = {
   cwd: '/Home',
@@ -15,7 +17,7 @@ var SAMPLE = {
 describe('cjs-rename', function () {
 
   before(function (done) {
-    ncp(TESTDIR_BACKUP, TESTDIR, done); 
+    ncp(BACKUP, TESTDIR, done); 
   });
 
   it('should use absolute paths', function () {
@@ -43,16 +45,20 @@ describe('cjs-rename', function () {
   it('should rename files', function (done) {
 
     var expectedChanges = [
-      { path: 'testdir/extension.js', count: 2 },
-      { path: 'testdir/quotes.js', count: 2 },
-      { path: 'testdir/folder/parent.js', count: 1 }
+      { path: TESTDIR + '/extension.js', count: 2,
+        contents: fs.readFileSync(EXPECTED + '/extension.js').toString() },
+      { path: TESTDIR + '/quotes.js', count: 2,
+        contents: fs.readFileSync(EXPECTED + '/quotes.js').toString() },
+      { path: TESTDIR + '/folder/parent.js', count: 1,
+        contents: fs.readFileSync(EXPECTED + '/folder/parent.js').toString() }
     ];
 
     var rename = new Rename({
       cwd: __dirname,
-      to: './testdir/new-name.js',
+      to: './testdir/done.js',
       from: './testdir/replace.js',
-      folder: './testdir/'
+      folder: './testdir/',
+      save: true
     });
 
     rename.run(function (err, changes) {

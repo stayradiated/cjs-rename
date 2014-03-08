@@ -1,6 +1,6 @@
 {
   "name": "cjs-rename",
-  "version": "0.0.2",
+  "version": "0.0.3",
   "description": "Rename a CJS file thing",
   "main": "index.js",
   "scripts": {
@@ -28,10 +28,10 @@
   "dependencies": {
     "commander": "2.1.x",
     "bluebird": "1.0.x",
-    "recursive-readdir-filter": "0.0.3"
+    "recursive-readdir-filter": "0.0.x"
   },
   "devDependencies": {
-    "mocha": "^1.17.1",
-    "ncp": "^0.5.0"
+    "mocha": "1.17.x",
+    "ncp": "0.5.x"
   }
 }

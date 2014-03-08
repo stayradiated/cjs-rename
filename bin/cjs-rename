@@ -7,6 +7,7 @@ var package = require('../package.json');
 
 program
   .version(package.version)
+  .option('-d, --dry', 'Do not write changes to disk.')
   .command('*')
   .description('cjs-rename [from] [to] [source...]')
   .action(command);
@@ -23,10 +24,11 @@ function command (from, to, source) {
   var rename = new Rename({
     to: to,
     from: from,
-    folder: source
+    folder: typeof(source) === 'string' ? source : undefined,
+    dryrun: program.dry ? false : true
   });
 
-  rename.run(function (err, changes) {
+  rename.run().then(function (changes) {
 
     if (! changes.length) {
       return console.log('No changes made');
@@ -41,4 +43,4 @@ function command (from, to, source) {
 
   });
 
-};
+}
