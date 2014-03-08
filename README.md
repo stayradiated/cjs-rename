@@ -2,23 +2,67 @@
 
 Inspired by https://github.com/timruffles/misnomer/blob/master/README.md.
 
+Given a module a bad name? Used all over your codebase and tests? Sounds like you want to rename a CJS module, and this here module can do that for you:
+
+```shell
+> cjs-rename src/some-bad-name.js src/some-good-name.js
+Renaming:
+- src/foo/bad.js fixed 2 require()s
+- src/foo/qux.js fixed 3 require()s
+- test/foo/bar.js fixed 1 require()s
+```
+
+And magically, where you saw:
+
+```javascript
+require('../../src/some-bad-name');
+```
+
+You'll now find:
+
+```javascript
+require('../../src/some-good-name');
+```
+
+
 ## Install
 
-```
+```shell
 npm install -g cjs-rename
 ```
 
 ## CLI Usage
 
+```shell
+> cjs-rename
+
+Usage: cjs-rename [options] [command]
+
+Commands:
+
+    *                      cjs-rename [from] [to] [source...]
+
+Options:
+
+    -h, --help     output usage information
+    -V, --version  output the version number
+    -d, --dry      Do not write changes to disk.
 ```
-// current usage - [from] [to] [source]
-cjs-rename source/old.js source/new.js source
 
-// timruffles idea - only specify file names, not paths
-cjs-rename old.js new.js ../source
+**Parameters:**
 
-// my idea - if no source is specified, use current dir
-cjs-rename old.js new.js
+- `from`: path to the current file
+- `to`: path to the file has been moved to
+- `folder`: (optional). Which files to search through. Uses cwd by default.
+
+**Example:**
+
+```shell
+> cjs-rename source/template.js source/view.js
+Renaming:
+- source/core.js fixed 1 require()s
+- source/utils.js fixed 1 require()s
+- test/template.js fixed 1 requires()s
 ```
 
 ## Module Usage
@@ -27,10 +71,11 @@ cjs-rename old.js new.js
 var Rename = require('cjs-rename');
 
 var rename = new Rename({
-    cwd: '...', // optional
     to: '...',
     from: '...',
-    folder: '...'
+    folder: '...',
+    cwd: '...', // optional
+    dryrun: false // optional
 });
 
 rename.run(function (err, changes) {
@@ -40,7 +85,19 @@ rename.run(function (err, changes) {
         console.log(changes);
     }
 });
+
+// Also supports promises
+rename.run().then(function (changes) { ... });
+
+// If you set 'options.dryrun', then you need to save your changes
+rename.save();
 ```
+
+## Important Notes
+
+- This will only search through files with the `.js` extension.
+- It will ignore any `node_modules` folders.
+- It will currently not move any files.
 
 ## Todo
 

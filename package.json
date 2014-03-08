@@ -2,7 +2,7 @@
   "name": "cjs-rename",
   "version": "0.0.3",
   "description": "Rename a CJS file thing",
-  "main": "index.js",
+  "main": "lib/rename.js",
   "scripts": {
     "test": "mocha -R spec --bail test/"
   },

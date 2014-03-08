@@ -2,7 +2,7 @@
 // vi:syntax=javascript
 
 var program = require('commander');
-var Rename = require('../index');
+var Rename = require('../lib/rename');
 var package = require('../package.json');
 
 program
@@ -34,7 +34,11 @@ function command (from, to, source) {
       return console.log('No changes made');
     }
 
-    console.log('Renaming:');
+    if (program.dry) {
+      console.log('Renaming (will not save changes):');
+    } else {
+      console.log('Renaming:');
+    }
 
     for (var i = 0, len = changes.length; i < len; i++) {
       var change = changes[i];

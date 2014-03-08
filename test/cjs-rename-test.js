@@ -1,5 +1,5 @@
 var assert = require('assert');
-var Rename = require('../index');
+var Rename = require('../lib/rename');
 var ncp = require('ncp');
 var fs = require('fs');
 
