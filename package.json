@@ -4,10 +4,10 @@
   "description": "Rename a CJS file thing",
   "main": "index.js",
   "scripts": {
-    "test": "node bin.js -t ./test/files/d.js -f ./test/files/b.js -s ./test/"
+    "test": "mocha -R spec --bail test/"
   },
   "bin": {
-    "cjs-rename", "./bin/cjs-rename"
+    "cjs-rename": "./bin/cjs-rename"
   },
   "keywords": [
     "rename",
@@ -19,7 +19,11 @@
   "license": "MIT",
   "dependencies": {
     "commander": "2.1.x",
-    "recursive-readdir": "0.0.x",
-    "bluebird": "1.0.x"
+    "bluebird": "1.0.x",
+    "recursive-readdir-filter": "0.0.3"
+  },
+  "devDependencies": {
+    "mocha": "^1.17.1",
+    "ncp": "^0.5.0"
   }
 }

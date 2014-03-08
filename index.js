@@ -1,12 +1,20 @@
 'use strict';
 
 var Promise = require('bluebird');
-var readdir = Promise.promisify(require('recursive-readdir'));
+var readdir = Promise.promisify(require('recursive-readdir-filter'));
 var fs      = Promise.promisifyAll(require('fs'));
 var Path    = require('path');
 
 var JS_EXTN = /\.js$/;
-var REQUIRE = /\brequire\s*\(\s*['"](\.[^'"]+)['"]\s*\)/g;
+var REQUIRE = /[^\.\w]require\s*\(\s*['"](\.[^'"]+)['"]\s*\)/g;
+var READDIR_OPTIONS = {
+  filterDir: function (stat) {
+    return stat.name !== 'node_modules';
+  },
+  filterFile: function (stat) {
+    return JS_EXTN.test(stat.name);
+  }
+};
 
 // options = {
 // from: <path to old name>
@@ -34,12 +42,12 @@ function Rename (options) {
 Rename.prototype.run = function (fn) {
   var self = this;
 
-  return readdir(this.folder).then(function (files) {
+  return readdir(this.folder, READDIR_OPTIONS).then(function (files) {
 
     var promises = [];
 
     for (var i = 0, len = files.length; i < len; i++) {
-      promises.push(self._readFile(files[i]));
+      promises.push(self._readFile(files[i]))
     }
 
     Promise.all(promises).then(function () {
@@ -65,7 +73,7 @@ Rename.prototype._readFile = function _readFile (path) {
   }).catch(function (err) {
 
     // log files that could not be read
-    console.log('Error reading:' + path + '. Message:', err);
+    throw new Error('Error reading:' + path + '. Message:', err);
 
   });
 
