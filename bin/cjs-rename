@@ -4,6 +4,7 @@
 var program = require('commander');
 var Rename = require('../lib/rename');
 var package = require('../package.json');
+var Path = require('path');
 
 program
   .version(package.version)
@@ -42,7 +43,8 @@ function command (from, to, source) {
 
     for (var i = 0, len = changes.length; i < len; i++) {
       var change = changes[i];
-      console.log('-', change.path, 'fixed', change.count, 'require()s');
+      var path = Path.relative(process.cwd(), change.path);
+      console.log('-', path, 'fixed', change.count, 'require()s');
     }
 
   });

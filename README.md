@@ -106,6 +106,10 @@ rename.save();
 
 ## Changelog
 
+## 0.0.4
+
+- Add support for coffeescript files
+
 ## 0.0.3
 
 - Improve command line interface.
