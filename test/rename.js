@@ -1,3 +1,5 @@
+'use strict';
+
 var assert = require('assert');
 var Rename = require('../lib/rename');
 var ncp = require('ncp');
@@ -9,12 +11,12 @@ var EXPECTED = __dirname + '/testdir-expected';
 
 var SAMPLE = {
   cwd: '/Home',
-  to: '/new.js',
-  from: '/old.js',
+  to: './new.js',
+  from: './old.js',
   folder: '.'
 };
 
-describe('cjs-rename', function () {
+describe('rename', function () {
 
   before(function (done) {
     ncp(BACKUP, TESTDIR, done); 
@@ -42,38 +44,44 @@ describe('cjs-rename', function () {
     assert.equal(rename.cwd, '/Home');
   });
 
-  it('should add extension', function () {
-    var rename = new Rename(SAMPLE);
-
-    assert.equal(rename._addExtension('test'), 'test.js');
-    assert.equal(rename._addExtension('test.js'), 'test.js');
-  });
-
-  it('should fix extension', function () {
-    var rename = new Rename(SAMPLE);
-
-    var cases = [
-      ['path.js', 'original', 'path'],
-      ['path', 'original.js', 'path.js'],
-      ['path', 'original', 'path'],
-      ['path.js', 'original.js', 'path.js']
-    ];
-
-    for (var i = 0, len = cases.length; i < len; i++) {
-      var test = cases[i];
-      assert.equal(rename._fixExtension(test[0], test[1]), test[2]);
-    }
-
-  });
-
   it('should create relative paths', function () {
     var rename = new Rename(SAMPLE);
 
-    assert.equal(rename._relativeTo('/Home/folder'), '../../new.js');
-    assert.equal(rename._relativeTo('/Home'), '../new.js');
+    assert.equal(rename._relativeTo('/Home/folder'), '../new.js');
+    assert.equal(rename._relativeTo('/Home'), './new.js');
   });
 
-  it('should rename files', function (done) {
+  describe('_replace', function (done) {
+
+    it('should match paths without extensions', function () {
+      var rename = new Rename(SAMPLE);
+
+      var test = [
+        'require("./old");',
+        'require("./old.js");',
+        'require("./old.coffee");',
+        'require("./old.min.js");'
+      ].join('\n');
+
+      var expected = [{
+        path: '/Home/foo.js',
+        count: 2,
+        contents: [
+          'require("./new");',
+          'require("./new.js");',
+          'require("./old.coffee");',
+          'require("./old.min.js");'
+        ].join('\n')
+      }];
+
+      rename._replace('/Home/foo.js', test);
+
+      assert.deepEqual(rename.changes, expected);
+    });
+
+  });
+
+  it('should rename file dependencies', function (done) {
 
     var expectedChanges = [
       { path: TESTDIR + '/custom.coffee', count: 3,
