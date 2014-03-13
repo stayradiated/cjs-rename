@@ -98,12 +98,12 @@ describe('rename', function () {
       cwd: __dirname,
       to: './testdir/done.js',
       from: './testdir/replace.js',
-      folder: './testdir/',
-      save: true
+      folder: './testdir/'
     });
 
     rename.run(function (err, changes) {
       assert.ifError(err);
+      console.log(JSON.stringify(changes, null, 2));
       assert.deepEqual(changes, expectedChanges);
       done();
     });
