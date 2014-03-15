@@ -1,11 +1,22 @@
 'use strict';
 
+var rewire = require('rewire');
 var assert = require('assert');
-var dependent = require('../lib/dependent');
+var fs     = require('./mock_fs');
+
+var dependent = rewire('../lib/dependent');
 
 describe('dependent', function () {
 
-  it('should edit dependencies', function () {
+  var input;
+
+  before(function () {
+    dependent.__set__('fs', fs);
+  });
+
+  it('should edit dependencies', function (done) {
+    
+    var sourcePath = '/test/dependent';
 
     var input = [
       'require("./foo");',
@@ -14,19 +25,23 @@ describe('dependent', function () {
       'require("./test/bar");'
     ].join('\n');
 
-    var i = 0;
-
-    var output = dependent(input, function (path) {
-      return './file/' + i++;
-    });
-
-    assert.equal(output, [
+    var output = [
       'require("./file/0");',
       'require("./file/1");',
       'require("./file/2");',
       'require("./file/3");',
-    ].join('\n'));
+    ].join('\n');
 
+    fs.write(sourcePath, input);
+
+    var i = 0;
+
+    dependent(sourcePath, function (path) {
+      return './file/' + i++;
+    }).then(function (contents) {
+      assert.equal(contents, output);
+      done();
+    }).done();
   });
 
 });
