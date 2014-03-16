@@ -44,4 +44,40 @@ describe('dependent', function () {
     }).done();
   });
 
+  describe('.parse', function () {
+
+    it('should do the thing', function () {
+
+      var path = '/test/dependent/parse';
+
+      var contents = [
+        'var foo = require("./foo");',
+        "var bar require('../bar');"
+      ].join('\n');
+
+      var expected = [
+        'var foo = require("foo");',
+        "var bar require('bar');"
+      ].join('\n');
+
+      var handler = function (fullPath, original) {
+        switch (original) {
+          case './foo':
+            assert.equal(fullPath, '/test/dependent/foo');
+            return 'foo';
+          case '../bar':
+            assert.equal(fullPath, '/test/bar');
+            return 'bar';
+          default:
+            throw new Error('no case for: ' + original);
+        }
+      };
+
+      var output = dependent.parse(path, contents, handler);
+      assert.equal(output, expected);
+
+    });
+
+  });
+
 });

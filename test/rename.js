@@ -43,13 +43,6 @@ describe('rename', function () {
     assert.equal(rename.cwd, '/Home');
   });
 
-  it('should create relative paths', function () {
-    var rename = new Rename(SAMPLE);
-
-    assert.equal(rename._relativeTo('/Home/folder'), '../new.js');
-    assert.equal(rename._relativeTo('/Home'), './new.js');
-  });
-
   describe('_replace', function (done) {
 
     it('should match paths without extensions', function (done) {
@@ -69,6 +62,7 @@ describe('rename', function () {
       ].join('\n');
 
       var output = [{
+        type: 'fix',
         path: path,
         count: 2,
         contents: [

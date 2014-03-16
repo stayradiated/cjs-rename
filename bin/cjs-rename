@@ -4,7 +4,7 @@
 var program = require('commander');
 var Rename = require('../lib/rename');
 var package = require('../package.json');
-var Path = require('path');
+var Path = require('../lib/path');
 
 program
   .version(package.version)
@@ -41,10 +41,21 @@ function command (from, to, source) {
       console.log('Renaming:');
     }
 
+    var change, path, from, to;
+
     for (var i = 0, len = changes.length; i < len; i++) {
-      var change = changes[i];
-      var path = Path.relative(process.cwd(), change.path);
-      console.log('-', path, 'fixed', change.count, 'require()s');
+      change = changes[i];
+      switch (change.type) {
+        case 'fix':
+          path = Path.relative(process.cwd(), change.path);
+          console.log('-', path, 'fixed', change.count, 'require()s');
+          break;
+        case 'move':
+          from = Path.relative(process.cwd(), change.from);
+          to   = Path.relative(process.cwd(), change.to);
+          console.log('- moved', from, 'to', to);
+          break;
+      }
     }
 
   });

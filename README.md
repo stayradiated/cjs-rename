@@ -95,9 +95,8 @@ rename.save();
 
 ## Important Notes
 
-- This will only search through files with the `.js` extension.
+- This will only search through files with the `.js` and `.coffee` extensions.
 - It will ignore any `node_modules` folders.
-- It will currently not move any files.
 
 ## Todo
 
@@ -109,6 +108,7 @@ rename.save();
 ## 0.0.4
 
 - Add support for coffeescript files
+- Can now move files
 
 ## 0.0.3
 

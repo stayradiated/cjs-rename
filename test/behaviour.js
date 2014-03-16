@@ -11,7 +11,9 @@ var EXPECTED = __dirname + '/testdir-expected';
 
 var sort = function (arr) {
   return arr.sort(function (a, b) {
-    return a.path.localeCompare(b.path);
+    a = a.path || a.from;
+    b = b.path || b.from;
+    return a.localeCompare(b);
   });
 };
 
@@ -27,14 +29,16 @@ describe('cjs-rename', function () {
   it('should rename file dependencies', function (done) {
 
     var expectedChanges = [
-      { path: TESTDIR + '/custom.coffee', count: 3,
+      { type: 'fix', path: TESTDIR + '/custom.coffee', count: 3,
         contents: fs.readFileSync(EXPECTED + '/custom.coffee').toString() },
-      { path: TESTDIR + '/extension.js', count: 2,
+      { type: 'fix', path: TESTDIR + '/extension.js', count: 2,
         contents: fs.readFileSync(EXPECTED + '/extension.js').toString() },
-      { path: TESTDIR + '/quotes.js', count: 2,
+      { type: 'fix', path: TESTDIR + '/quotes.js', count: 2,
         contents: fs.readFileSync(EXPECTED + '/quotes.js').toString() },
-      { path: TESTDIR + '/folder/parent.js', count: 1,
-        contents: fs.readFileSync(EXPECTED + '/folder/parent.js').toString() }
+      { type: 'fix', path: TESTDIR + '/folder/parent.js', count: 1,
+        contents: fs.readFileSync(EXPECTED + '/folder/parent.js').toString() },
+
+      { type: 'move', from: TESTDIR + '/replace.js', to: TESTDIR + '/done.js' }
     ];
 
     var rename = new Rename({
