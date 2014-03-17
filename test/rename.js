@@ -54,6 +54,12 @@ describe('rename', function () {
         to: './new.js'
       });
 
+      rename.matches = [{
+        from: '/test/rename/old.js',
+        to: '/test/rename/new.js'
+      }];
+
+
       var input = [
         'require("./old");',
         'require("./old.js");',

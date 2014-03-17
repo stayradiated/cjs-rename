@@ -17,7 +17,7 @@ var sort = function (arr) {
   });
 };
 
-describe('cjs-rename', function () {
+describe('behaviour', function () {
 
   before(function (done) {
     ncp(BACKUP, TESTDIR, function (err) {
@@ -31,20 +31,21 @@ describe('cjs-rename', function () {
     var expectedChanges = [
       { type: 'fix', path: TESTDIR + '/custom.coffee', count: 3,
         contents: fs.readFileSync(EXPECTED + '/custom.coffee').toString() },
-      { type: 'fix', path: TESTDIR + '/extension.js', count: 2,
+      { type: 'fix', path: TESTDIR + '/extension.js', count: 3,
         contents: fs.readFileSync(EXPECTED + '/extension.js').toString() },
       { type: 'fix', path: TESTDIR + '/quotes.js', count: 2,
         contents: fs.readFileSync(EXPECTED + '/quotes.js').toString() },
       { type: 'fix', path: TESTDIR + '/folder/parent.js', count: 1,
         contents: fs.readFileSync(EXPECTED + '/folder/parent.js').toString() },
 
-      { type: 'move', from: TESTDIR + '/replace.js', to: TESTDIR + '/done.js' }
+      { type: 'move', from: TESTDIR + '/replace.js', to: TESTDIR + '/done.js' },
+      { type: 'move', from: TESTDIR + '/replace.coffee', to: TESTDIR + '/done.coffee' }
     ];
 
     var rename = new Rename({
       cwd: __dirname,
-      to: './testdir/done.js',
-      from: './testdir/replace.js',
+      to: './testdir/done',
+      from: './testdir/replace',
       folder: './testdir/'
     });
 

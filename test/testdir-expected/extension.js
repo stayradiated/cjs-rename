@@ -6,7 +6,7 @@ require('./done');
 require('./done.js');
 
 // uses .coffee extension
-require('./replace.coffee');
+require('./done.coffee');
 
 // uses .min.js extension
 require('./replace.min.js');
