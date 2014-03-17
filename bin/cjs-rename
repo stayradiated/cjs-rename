@@ -47,12 +47,12 @@ function command (from, to, source) {
       change = changes[i];
       switch (change.type) {
         case 'fix':
-          path = Path.relative(process.cwd(), change.path);
+          path = Path.relative(rename.cwd, change.path);
           console.log('-', path, 'fixed', change.count, 'require()s');
           break;
         case 'move':
-          from = Path.relative(process.cwd(), change.from);
-          to   = Path.relative(process.cwd(), change.to);
+          from = Path.relative(rename.cwd, change.from);
+          to   = Path.relative(rename.cwd, change.to);
           console.log('- moved', from, 'to', to);
           break;
       }
