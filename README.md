@@ -7,6 +7,7 @@ Given a module a bad name? Used all over your codebase and tests? Sounds like yo
 ```shell
 > cjs-rename src/some-bad-name.js src/some-good-name.js
 Renaming:
+- moved test/some-bad-name.js to test/some-good-name.js
 - src/foo/bad.js fixed 2 require()s
 - src/foo/qux.js fixed 3 require()s
 - test/foo/bar.js fixed 1 require()s
@@ -22,6 +23,17 @@ You'll now find:
 
 ```javascript
 require('../../src/some-good-name');
+```
+
+**Search Example**
+
+```shell
+> cjs-rename -s some-bad-name some-good-name
+Renaming:
+- moved test/some-bad-name.js to test/some-good-name.js
+- src/foo/bad.js fixed 2 require()s
+- src/foo/qux.js fixed 3 require()s
+- test/foo/bar.js fixed 1 require()s
 ```
 
 
@@ -40,13 +52,14 @@ Usage: cjs-rename [options] [command]
 
 Commands:
 
-    *                      cjs-rename [from] [to] [source...]
+*                      cjs-rename [from] [to] [source...]
 
 Options:
 
-    -h, --help     output usage information
-    -V, --version  output the version number
-    -d, --dry      Do not write changes to disk.
+-h, --help     output usage information
+-V, --version  output the version number
+-d, --dry      Do not write changes to disk.
+-s, --search   Search by filename
 ```
 
 **Parameters:**
@@ -75,7 +88,8 @@ var rename = new Rename({
     from: '...',
     folder: '...',
     cwd: '...', // optional
-    dryrun: false // optional
+    dryrun: false, // optional
+    mode: 'search' // optional
 });
 
 rename.run(function (err, changes) {
@@ -110,6 +124,7 @@ rename.save();
 - Add support for coffeescript files
 - Can now move files
 - Add in scanning so that `options.from` can match multiple files
+- Add `--search` flag for searching by filename
 
 ## 0.0.3
 

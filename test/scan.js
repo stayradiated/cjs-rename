@@ -94,6 +94,82 @@ describe('scan', function () {
   });
 
   describe('.search', function () {
+
+    var testSearch = function (options, expected) {
+      var output = scan.search(options);
+      assert.deepEqual(output, expected);
+    };
+
+    it('should search without any extensions', function () {
+
+      var options = {
+        from: 'pass',
+        to: 'done',
+        input: INPUT
+      };
+
+      var expected = [
+        { from: '/pass.js', to: '/done.js' },
+        { from: '/pass.coffee', to: '/done.coffee' },
+        { from: '/folder/pass.js', to: '/folder/done.js' }
+      ];
+
+      testSearch(options, expected);
+
+    });
+
+    it('should search with extension', function () {
+
+      var options = {
+        from: 'pass.js',
+        to: 'done',
+        input: INPUT
+      };
+
+      var expected = [
+        { from: '/pass.js', to: '/done.js' },
+        { from: '/folder/pass.js', to: '/folder/done.js' }
+      ];
+
+      testSearch(options, expected);
+
+    });
+
+    it('should replace with extension', function () {
+
+      var options = {
+        from: 'pass',
+        to: 'done.js',
+        input: INPUT
+      };
+
+      var expected = [
+        { from: '/pass.js', to: '/done.js' },
+        { from: '/pass.coffee', to: '/done.js' },
+        { from: '/folder/pass.js', to: '/folder/done.js' }
+      ];
+
+      testSearch(options, expected);
+
+    });
+
+    it('should search and replace with extension', function () {
+
+      var options = {
+        from: 'pass.js',
+        to: 'done.js',
+        input: INPUT
+      };
+
+      var expected = [
+        { from: '/pass.js', to: '/done.js' },
+        { from: '/folder/pass.js', to: '/folder/done.js' }
+      ];
+
+      testSearch(options, expected);
+
+    });
+
   });
 
 });

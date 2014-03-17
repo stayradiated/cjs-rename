@@ -27,7 +27,7 @@ describe('path', function () {
 
         for (var i = 0, len = cases.length; i < len; i++) {
           var test = cases[i];
-          assert.equal(Path.extension.get(test[0]), test[1]);
+          assert.equal(Path.extname(test[0]), test[1]);
         }
 
       });

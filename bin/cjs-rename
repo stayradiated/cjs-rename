@@ -9,6 +9,7 @@ var Path = require('../lib/path');
 program
   .version(package.version)
   .option('-d, --dry', 'Do not write changes to disk.')
+  .option('-s, --search', 'Search by filename')
   .command('*')
   .description('cjs-rename [from] [to] [source...]')
   .action(command);
@@ -23,6 +24,7 @@ if (! program.args.length) {
 function command (from, to, source) {
 
   var rename = new Rename({
+    mode: program.search ? 'search' : 'path',
     to: to,
     from: from,
     folder: typeof(source) === 'string' ? source : undefined,
@@ -40,6 +42,12 @@ function command (from, to, source) {
     } else {
       console.log('Renaming:');
     }
+
+    rename.matches.forEach(function (match) {
+      var from = Path.relative(rename.cwd, match.from);
+      var to = Path.relative(rename.cwd, match.to);
+      console.log(from, '->', to);
+    });
 
     var change, path, from, to;
 
