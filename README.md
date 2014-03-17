@@ -109,6 +109,7 @@ rename.save();
 
 - Add support for coffeescript files
 - Can now move files
+- Add in scanning so that `options.from` can match multiple files
 
 ## 0.0.3
 
