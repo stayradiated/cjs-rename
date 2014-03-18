@@ -27,12 +27,14 @@ if (! program.args.length) {
 
 function command (from, to, source) {
 
+  var cwd = process.cwd();
+
   var app = new App({
     mode: program.search ? 'search' : 'path',
     cwd: typeof(source) === 'string' ? source : undefined,
     to: to,
     from: from,
-    dryrun: program.dry === true
+    dryrun: program.dry
   });
 
   app.run().then(function () {
@@ -45,20 +47,20 @@ function command (from, to, source) {
       console.log(RED + '[drymode]: will not save changes' + RESET);
     }
 
-    var change, path, from, to;
-
+    if (app.files.length === 0) return;
     console.log('\nMoving:');
 
     app.files.forEach(function (file) { 
-      from = Path.relative(app.cwd, file.from);
-      to   = Path.relative(app.cwd, file.to);
+      var from = Path.relative(cwd, file.from);
+      var to   = Path.relative(cwd, file.to);
       console.log('-',  BLUE + from, RESET + '>' + BLUE, to, RESET);
     });
 
+    if (app.changes.length === 0) return;
     console.log('\nFixing:');
 
     app.changes.forEach(function (change) {
-      path = Path.relative(app.cwd, change.path);
+      var path = Path.relative(cwd, change.path);
       console.log('- [' + change.count + ']' + BLUE, path, RESET);
     });
 
