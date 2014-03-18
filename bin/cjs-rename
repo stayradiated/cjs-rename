@@ -15,7 +15,7 @@ program
   .option('-d, --dry', 'Do not write changes to disk.')
   .option('-s, --search', 'Search by filename')
   .command('*')
-  .description('cjs-rename [from] [to] [source...]')
+  .description('cjs-rename from to [source]')
   .action(command);
 
 program.parse(process.argv);
@@ -29,11 +29,18 @@ function command (from, to, source) {
 
   var cwd = process.cwd();
 
+  from = typeof(from) === 'string' ? from : undefined;
+  to = typeof(to) === 'string' ? to : undefined;
+
+  if (! (from && to)) {
+    return console.log(RED + 'Error:' + RESET, 'Must specify from and to');
+  }
+
   var app = new App({
     mode: program.search ? 'search' : 'path',
-    cwd: typeof(source) === 'string' ? source : undefined,
-    to: to,
+    cwd: typeof(source) === 'string' ? source : cwd,
     from: from,
+    to: to,
     dryrun: program.dry
   });
 
@@ -44,7 +51,7 @@ function command (from, to, source) {
     }
 
     if (program.dry) {
-      console.log(RED + '[drymode]: will not save changes' + RESET);
+      console.log(RED + 'Drymode:' + RESET, 'will not save changes');
     }
 
     if (app.files.length === 0) return;
