@@ -4,79 +4,42 @@ var assert = require('assert');
 var rewire = require('rewire');
 var fs     = require('./mock_fs');
 
-var Rename = rewire('../lib/rename');
+var rename = rewire('../lib/rename');
 var dependent = rewire('../lib/dependent');
-var move = rewire('../lib/move');
-
-var SAMPLE = {
-  cwd: '/Home',
-  to: './new.js',
-  from: './old.js',
-  folder: '.'
-};
 
 describe('rename', function () {
 
   before(function () {
-    move.__set__('fs', fs);
     dependent.__set__('fs', fs);
-    Rename.__set__('fs', fs);
-    Rename.__set__('move', move);
-    Rename.__set__('dependent', dependent);
+    rename.__set__('dependent', dependent);
   });
 
-  describe('constructor', function () {
-
-    it('should use absolute paths', function () {
-
-      var rename = new Rename({
-        cwd: '/Home',
-        to: './files/foo.js',
-        from: './files/bar.js',
-        folder: './files'
-      });
-
-      assert.equal(rename.cwd, '/Home');
-      assert.equal(rename.to, '/Home/files/foo.js');
-      assert.equal(rename.from, '/Home/files/bar.js');
-      assert.equal(rename.folder, '/Home/files');
-    });
-
-    it('should work without "new" keyword', function () {
-      // gets jshint to shutup about a missing new keyword
-      var renameFactory = Rename;
-      var rename = renameFactory(SAMPLE);
-
-      assert(rename instanceof Rename);
-      assert.equal(rename.cwd, '/Home');
-    });
-
-  });
-
-  describe('_replace', function (done) {
+  describe('parse', function (done) {
 
     it('should match paths without extensions', function (done) {
-      var path = '/test/rename/replace.js';
 
-      var rename = new Rename({
-        cwd: '/test/rename',
-        from: './old.js',
-        to: './new.js'
-      });
+      var prefix = '/test/rename/parse/';
 
-      rename.files = [{
-        from: '/test/rename/old.js',
-        to: '/test/rename/new.js'
+      var path = prefix + 'old.js';
+
+      var files = [{
+        from: prefix + 'old.js',
+        to: prefix + 'new.js'
       }];
 
-      var input = [
+      fs.write(path, [
         'require("./old");',
         'require("./old.js");',
         'require("./old.coffee");',
         'require("./old.min.js");'
-      ].join('\n');
+      ].join('\n'));
 
-      var output = [{
+      rename.parse(path, files).then(function (output) {
+        assert.deepEqual(output, expected);
+        done();
+      }).done();
+
+      var expected = {
         path: path,
         count: 2,
         contents: [
@@ -85,73 +48,42 @@ describe('rename', function () {
           'require("./old.coffee");',
           'require("./old.min.js");'
         ].join('\n')
-      }];
-
-      fs.write(path, input);
-
-      rename._replace(path, input).then(function () {
-        assert.deepEqual(rename.changes, output);
-        done();
-      }).done();
-    });
-
-  });
-
-  describe('_scan', function () {
-
-    it('should scan for matching files', function (done) {
-
-      var rename = new Rename({
-        cwd: '/test/rename/_scan',
-        from: 'old',
-        to: 'new'
-      });
-
-      fs.write('/test/rename/_scan/old.js', '');
-      fs.write('/test/rename/_scan/foo.js', '');
-
-      rename._scan([
-        '/test/rename/_scan/old.js',
-        '/test/rename/_scan/foo.js',
-        '/test/rename/_scan/bar.js'
-      ]).then(function () {
-        // TODO: assert something
-        done();
-      }).done();
+      };
 
     });
 
   });
 
-  describe('run', function () {
+  it('should scan for matching files', function (done) {
 
-    it('should replace by searching', function (done) {
+    var prefix = '/test/rename/';
 
-      var prefix = '/test/rename/run';
+    var options = [{
+      from: prefix + 'old',
+      to: prefix + 'new'
+    }];
 
-      var rename = new Rename({
-        cwd: prefix,
-        from: 'old',
-        to: 'new',
-        mode: 'search'
-      });
+    var filelist = [
+      prefix + 'old.js',
+      prefix + 'foo.js',
+      prefix + 'bar.js'
+    ];
 
-      fs.write(prefix + '/old.js','');
-      fs.write(prefix + '/folder/old.js', '');
+    fs.write(prefix + 'old.js', '');
+    fs.write(prefix + 'foo.js', [
+      'require("./old");'
+    ].join('\n'));
 
-      rename.run().then(function () {
-        return fs.readdir(prefix);
-      }).then(function (files) {
-        assert.deepEqual(files, expectedFiles);
-        done();
-      }).done();
+    rename(options, filelist).then(function (changes) {
+      assert.deepEqual(changes, expected);
+      done();
+    }).done();
 
-      var expectedFiles = [
-        prefix + '/new.js',
-        prefix + '/folder/new.js',
-      ];
-
-    });
+    var expected = [{
+      path: prefix + 'foo.js',
+      count: 1,
+      contents: 'require("./new");'
+    }];
 
   });
 

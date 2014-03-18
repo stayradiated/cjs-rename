@@ -125,6 +125,7 @@ rename.save();
 - Add `languages.js` so it should be pretty easy to add support for other
   languages
 - Store the files that will be moved in `rename.files`
+- Seperate API and rename code
 
 ## 0.0.4
 

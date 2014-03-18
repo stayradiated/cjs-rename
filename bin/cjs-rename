@@ -2,7 +2,7 @@
 // vi:syntax=javascript
 
 var program = require('commander');
-var Rename = require('../lib/rename');
+var App = require('../lib/index');
 var package = require('../package.json');
 var Path = require('../lib/path');
 
@@ -27,17 +27,17 @@ if (! program.args.length) {
 
 function command (from, to, source) {
 
-  var rename = new Rename({
+  var app = new App({
     mode: program.search ? 'search' : 'path',
+    cwd: typeof(source) === 'string' ? source : undefined,
     to: to,
     from: from,
-    folder: typeof(source) === 'string' ? source : undefined,
     dryrun: program.dry === true
   });
 
-  rename.run().then(function () {
+  app.run().then(function () {
 
-    if (rename.changes.length + rename.files.length === 0) {
+    if (app.changes.length + app.files.length === 0) {
       return console.log('No changes made');
     }
 
@@ -49,16 +49,16 @@ function command (from, to, source) {
 
     console.log('\nMoving:');
 
-    rename.files.forEach(function (file) { 
-      from = Path.relative(rename.cwd, file.from);
-      to   = Path.relative(rename.cwd, file.to);
+    app.files.forEach(function (file) { 
+      from = Path.relative(app.cwd, file.from);
+      to   = Path.relative(app.cwd, file.to);
       console.log('-',  BLUE + from, RESET + '>' + BLUE, to, RESET);
     });
 
     console.log('\nFixing:');
 
-    rename.changes.forEach(function (change) {
-      path = Path.relative(rename.cwd, change.path);
+    app.changes.forEach(function (change) {
+      path = Path.relative(app.cwd, change.path);
       console.log('- [' + change.count + ']' + BLUE, path, RESET);
     });
 
