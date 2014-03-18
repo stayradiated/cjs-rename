@@ -14,18 +14,18 @@ describe('move', function () {
 
   it('should move a file from one place to another', function (done) {
 
-    var moveFrom = '/test/move/a';
-    var moveTo = '/test/move/b';
+    var from = '/test/move/a.js';
+    var to = '/test/move/b.js';
 
-    fs.write(moveFrom, 'some text');
-
-    move(moveFrom, moveTo).then(function () {
-      return fs.read(moveTo);
+    fs.write(from, 'some text').then(function () {
+      return move(from, to);
+    }).then(function () {
+      return fs.read(to);
     }).then(function (contents) {
       assert.equal(contents, 'some text');
-      return fs.read(moveFrom);
-    }).then(function (contents) {
-      assert.equal(contents, undefined);
+      return fs.read(from);
+    }).catch(function (err) {
+      assert.equal(err, from);
       done();
     }).done();
 
@@ -35,8 +35,8 @@ describe('move', function () {
 
     it('should fix required dependency', function () {
 
-      var from = '/test/move/parse/a';
-      var to   = '/test/move/b';
+      var from = '/test/move/parse/a.js';
+      var to   = '/test/move/b.js';
 
       var contents = [
         'require("./foo");',

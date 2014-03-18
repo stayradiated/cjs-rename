@@ -19,7 +19,7 @@ var sort = function (arr) {
 
 describe('behaviour', function () {
 
-  before(function (done) {
+  beforeEach(function (done) {
     ncp(BACKUP, TESTDIR, function (err) {
       if (err) return console.error(err);
       done();
@@ -29,17 +29,15 @@ describe('behaviour', function () {
   it('should rename file dependencies', function (done) {
 
     var expectedChanges = [
-      { type: 'fix', path: TESTDIR + '/custom.coffee', count: 3,
+      { path: TESTDIR + '/custom.coffee', count: 3,
         contents: fs.readFileSync(EXPECTED + '/custom.coffee').toString() },
-      { type: 'fix', path: TESTDIR + '/extension.js', count: 3,
+      { path: TESTDIR + '/extension.js', count: 3,
         contents: fs.readFileSync(EXPECTED + '/extension.js').toString() },
-      { type: 'fix', path: TESTDIR + '/quotes.js', count: 2,
+      { path: TESTDIR + '/quotes.js', count: 2,
         contents: fs.readFileSync(EXPECTED + '/quotes.js').toString() },
-      { type: 'fix', path: TESTDIR + '/folder/parent.js', count: 1,
-        contents: fs.readFileSync(EXPECTED + '/folder/parent.js').toString() },
+      { path: TESTDIR + '/folder/parent.js', count: 1,
+        contents: fs.readFileSync(EXPECTED + '/folder/parent.js').toString() }
 
-      { type: 'move', from: TESTDIR + '/replace.js', to: TESTDIR + '/done.js' },
-      { type: 'move', from: TESTDIR + '/replace.coffee', to: TESTDIR + '/done.coffee' }
     ];
 
     var rename = new Rename({
@@ -53,7 +51,7 @@ describe('behaviour', function () {
       assert.ifError(err);
       assert.deepEqual(sort(changes), sort(expectedChanges));
       done();
-    });
+    }).done();
   });
 
 });

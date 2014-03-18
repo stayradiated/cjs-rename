@@ -119,6 +119,13 @@ rename.save();
 
 ## Changelog
 
+## 0.0.5
+
+- Color output of `cjs-rename` command
+- Add `languages.js` so it should be pretty easy to add support for other
+  languages
+- Store the files that will be moved in `rename.files`
+
 ## 0.0.4
 
 - Add support for coffeescript files

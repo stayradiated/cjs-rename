@@ -16,7 +16,7 @@ describe('dependent', function () {
 
   it('should edit dependencies', function (done) {
     
-    var sourcePath = '/test/dependent';
+    var sourcePath = '/test/dependent.js';
 
     var input = [
       'require("./foo");',
@@ -48,7 +48,7 @@ describe('dependent', function () {
 
     it('should do the thing', function () {
 
-      var path = '/test/dependent/parse';
+      var path = '/test/dependent/parse.js';
 
       var contents = [
         'var foo = require("./foo");',

@@ -9,15 +9,23 @@
 var Promise = require('bluebird');
 
 var fs = {
+  MOCK: true,
   _data: {},
 
   readdir: function (path) {
-    return Promise.resolve([]);
+    var match = [];
+    for (var key in this._data) {
+      if (key.indexOf(path) === 0) {
+        match.push(key);
+      }
+    }
+    return Promise.resolve(match);
   },
 
   read: function (path) {
     var value = fs._data[path];
-    return Promise.resolve(value);
+    return value === undefined ?
+      Promise.reject(path) : Promise.resolve(value);
   },
 
   write: function (path, contents) {

@@ -6,6 +6,10 @@ var Rename = require('../lib/rename');
 var package = require('../package.json');
 var Path = require('../lib/path');
 
+var RED   = '\u001b[31m';
+var BLUE  = '\u001b[34m';
+var RESET = '\u001b[0m';
+
 program
   .version(package.version)
   .option('-d, --dry', 'Do not write changes to disk.')
@@ -31,40 +35,32 @@ function command (from, to, source) {
     dryrun: program.dry === true
   });
 
-  rename.run().then(function (changes) {
+  rename.run().then(function () {
 
-    if (! changes.length) {
+    if (rename.changes.length + rename.files.length === 0) {
       return console.log('No changes made');
     }
 
     if (program.dry) {
-      console.log('Renaming (will not save changes):');
-    } else {
-      console.log('Renaming:');
+      console.log(RED + '[drymode]: will not save changes' + RESET);
     }
-
-    rename.matches.forEach(function (match) {
-      var from = Path.relative(rename.cwd, match.from);
-      var to = Path.relative(rename.cwd, match.to);
-      console.log(from, '->', to);
-    });
 
     var change, path, from, to;
 
-    for (var i = 0, len = changes.length; i < len; i++) {
-      change = changes[i];
-      switch (change.type) {
-        case 'fix':
-          path = Path.relative(rename.cwd, change.path);
-          console.log('-', path, 'fixed', change.count, 'require()s');
-          break;
-        case 'move':
-          from = Path.relative(rename.cwd, change.from);
-          to   = Path.relative(rename.cwd, change.to);
-          console.log('- moved', from, 'to', to);
-          break;
-      }
-    }
+    console.log('\nMoving:');
+
+    rename.files.forEach(function (file) { 
+      from = Path.relative(rename.cwd, file.from);
+      to   = Path.relative(rename.cwd, file.to);
+      console.log('-',  BLUE + from, RESET + '>' + BLUE, to, RESET);
+    });
+
+    console.log('\nFixing:');
+
+    rename.changes.forEach(function (change) {
+      path = Path.relative(rename.cwd, change.path);
+      console.log('- [' + change.count + ']' + BLUE, path, RESET);
+    });
 
   });
 
