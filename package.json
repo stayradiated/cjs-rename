@@ -7,7 +7,7 @@
     "test": "mocha -R spec --bail test/"
   },
   "bin": {
-    "cjs-rename": "./bin/cjs-rename"
+    "cjs-rename": "./bin/cjs-rename.js"
   },
   "author": "George Czabania <george@czabania.com>",
   "homepage": "https://github.com/stayradiated/cjs-rename",
