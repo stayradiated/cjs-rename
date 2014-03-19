@@ -126,6 +126,7 @@ rename.save();
   languages
 - Store the files that will be moved in `rename.files`
 - Seperate API and rename code
+- Use `xtnd.map` to map over an array and ignoring `undefined`
 
 ## 0.0.4
 
