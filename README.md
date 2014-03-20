@@ -2,38 +2,68 @@
 
 Inspired by https://github.com/timruffles/misnomer/blob/master/README.md.
 
-Given a module a bad name? Used all over your codebase and tests? Sounds like you want to rename a CJS module, and this here module can do that for you:
+Given a module a bad name that is used all over your codebase and tests? Sounds like you want to rename a CJS module, and this here module can do that for you:
 
 ```shell
-> cjs-rename src/some-bad-name.js src/some-good-name.js
-Renaming:
-- moved test/some-bad-name.js to test/some-good-name.js
-- src/foo/bad.js fixed 2 require()s
-- src/foo/qux.js fixed 3 require()s
-- test/foo/bar.js fixed 1 require()s
+> cjs-rename lib/some-bad-name.js lib/some-good-name.js
+
+Moving:
+- moved lib/some-bad-name.js to lib/some-good-name.js
+
+Fixing:
+- [1] lib/foo/bad.js
+- [1] lib/foo/qux.js
+- [1] test/foo/bar.js
 ```
 
 And magically, where you saw:
 
 ```javascript
-require('../../src/some-bad-name');
+require('../../lib/some-bad-name');
 ```
 
 You'll now find:
 
 ```javascript
-require('../../src/some-good-name');
+require('../../lib/some-good-name');
 ```
 
-**Search Example**
+**Search by filename**
+
+Don't want to type out filepaths? Then add the `-s` flag to do a search.
+
+Notice how it moves both files in the `lib` and `test` folders.
 
 ```shell
 > cjs-rename -s some-bad-name some-good-name
-Renaming:
+
+Moving:
+- moved lib/some-bad-name.js to lib/some-good-name.js
 - moved test/some-bad-name.js to test/some-good-name.js
-- src/foo/bad.js fixed 2 require()s
-- src/foo/qux.js fixed 3 require()s
-- test/foo/bar.js fixed 1 require()s
+
+Fixing:
+- [1] lib/foo/bad.js
+- [1] lib/foo/qux.js
+- [1] test/foo/bar.js
+```
+
+
+**Drymode**
+
+Drymode will show you the affect the command will have, without actually saving
+any changes. Just add the `-d` flag.
+
+```shell
+cjs-rename -s -d old new
+Drymode: Will not save changes
+
+Moving:
+- moved lib/folder/old.js to lib/folder/new.js
+-moved test/old.js to test/new.js
+
+Fixing:
+- [1] lib/folder/foo.js
+- [1] test/foo.js
 ```
 
 
@@ -52,7 +82,7 @@ Usage: cjs-rename [options] [command]
 
 Commands:
 
-*                      cjs-rename [from] [to] [source...]
+*                      cjs-rename from to [source]
 
 Options:
 
@@ -66,16 +96,29 @@ Options:
 
 - `from`: path to the current file
 - `to`: path to the file has been moved to
-- `folder`: (optional). Which files to search through. Uses cwd by default.
+- `source`: (optional). Which folder to search through. Uses the current folder
+  by default.
 
-**Example:**
+**Example using current working directory**
 
 ```shell
 > cjs-rename source/template.js source/view.js
-Renaming:
-- source/core.js fixed 1 require()s
-- source/utils.js fixed 1 require()s
-- test/template.js fixed 1 requires()s
+
+Fixing:
+- [1] source/core.js
+- [1] source/utils.js
+- [1] test/template.js
+```
+
+**Example using custom source directory**
+
+```shell
+> cjs-rename template.js view.js source
+
+Fixing:
+- [1] source/core.js
+- [1] source/utils.js
+- [1] test/template.js
 ```
 
 ## Module Usage
@@ -84,12 +127,13 @@ Renaming:
 var Rename = require('cjs-rename');
 
 var rename = new Rename({
-    to: '...',
-    from: '...',
-    folder: '...',
-    cwd: '...', // optional
-    dryrun: false, // optional
-    mode: 'search' // optional
+    from: './source/path',
+    to: './where/to/move/to',
+
+    // optional
+    cwd: proces.cwd(),
+    dryrun: false,
+    mode: 'path',
 });
 
 rename.run(function (err, changes) {
@@ -107,17 +151,83 @@ rename.run().then(function (changes) { ... });
 rename.save();
 ```
 
+### Rename constructor
+
+Create a new Rename instance.
+
+Can be called with or without `new`.
+
+**Parameters:**
+
+- `options` (object)
+    - `from` (string) required
+    - `to` (string) required
+    - `cwd` (string)
+    - `dryrun` (boolean)
+    - `mode` (string)
+
+**Example:**
+
+```javascript
+var rename = Rename({
+    from: 'old',
+    to: 'new',
+    cwd: '/home/project/folder',
+    mode: 'search'
+});
+```
+
+### rename.run
+
+Will move and rename files. Will automatically call `rename.save` unless you
+specify `drymode: true` in the options.
+
+**Parameters:**
+
+- `[fn]` (function) : optional callback with signature `fn(err, changes)`
+
+**Example:**
+
+```javascript
+rename.run(function (err, changes) {
+    if (err) {
+        console.log('Error', err);
+    } else {
+        console.log(changes);
+    }
+});
+```
+
+### rename.save
+
+Save changes to disk.
+
+**Paramters:**
+
+- `[fn]` (function) : optional callback with signature `fn(err)`
+
+**Example:**
+
+```javascript
+rename.save(function (err) {
+    if (err) {
+        console.log('Error', err);
+    } else {
+        console.log('Saved changes');
+    }
+});
+```
+
 ## Important Notes
 
 - This will only search through files with the `.js` and `.coffee` extensions.
 - It will ignore any `node_modules` folders.
 
-## Todo
-
-- Improve command line interface
-- Move files
-
 ## Changelog
+
+## 0.0.6
+
+- Improve docs
 
 ## 0.0.5
 
