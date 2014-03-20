@@ -225,11 +225,11 @@ rename.save(function (err) {
 
 ## Changelog
 
-## 0.0.6
+### 0.0.6
 
 - Improve docs
 
-## 0.0.5
+### 0.0.5
 
 - Color output of `cjs-rename` command
 - Add `languages.js` so it should be pretty easy to add support for other
@@ -238,14 +238,14 @@ rename.save(function (err) {
 - Seperate API and rename code
 - Use `xtnd.map` to map over an array and ignoring `undefined`
 
-## 0.0.4
+### 0.0.4
 
 - Add support for coffeescript files
 - Can now move files
 - Add in scanning so that `options.from` can match multiple files
 - Add `--search` flag for searching by filename
 
-## 0.0.3
+### 0.0.3
 
 - Improve command line interface.
 - If the original 'require()' call didn't have the extension, than the replaced
