@@ -1,6 +1,6 @@
 {
   "name": "cjs-rename",
-  "version": "0.0.6",
+  "version": "0.0.7",
   "description": "Rename a CJS file thing",
   "main": "lib/index.js",
   "scripts": {
