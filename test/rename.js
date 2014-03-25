@@ -1,17 +1,22 @@
 'use strict';
 
 var assert = require('assert');
-var rewire = require('rewire');
+var unwire = require('unwire');
 var fs     = require('./mock_fs');
-
-var rename = rewire('../lib/rename');
-var dependent = rewire('../lib/dependent');
 
 describe('rename', function () {
 
+  var rename;
+
   before(function () {
+    unwire.flush();
+    var dependent = unwire('../lib/dependent');
     dependent.__set__('fs', fs);
-    rename.__set__('dependent', dependent);
+    rename = require('../lib/rename');
+  });
+
+  after(function () {
+    unwire.flush();
   });
 
   describe('parse', function (done) {

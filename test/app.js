@@ -1,7 +1,7 @@
 'use strict';
 
 var assert = require('assert');
-var rewire = require('rewire');
+var unwire = require('unwire');
 var App = require('../lib/index');
 var ncp = require('ncp');
 var fs = require('fs');
@@ -92,13 +92,18 @@ describe('app', function () {
 
   describe('run', function () {
 
-    var App = rewire('../lib/index');
-    var move = rewire('../lib/move');
+    var App;
     
     before(function () {
+      unwire.flush();
+      var move = unwire('../lib/move');
+      App = unwire('../lib/index');
       move.__set__('fs', mfs);
       App.__set__('fs', mfs);
-      App.__set__('move', move);
+    });
+
+    after(function () {
+      unwire.flush();
     });
 
     it('should replace by searching', function (done) {

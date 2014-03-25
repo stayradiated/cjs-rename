@@ -225,6 +225,10 @@ rename.save(function (err) {
 
 ## Changelog
 
+### 0.0.7
+
+- Use 'unwire' instead of 'rewire' for tests.
+
 ### 0.0.6
 
 - Improve docs

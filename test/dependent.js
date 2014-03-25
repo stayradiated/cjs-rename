@@ -1,17 +1,20 @@
 'use strict';
 
-var rewire = require('rewire');
+var unwire = require('unwire');
 var assert = require('assert');
 var fs     = require('./mock_fs');
 
-var dependent = rewire('../lib/dependent');
-
 describe('dependent', function () {
 
-  var input;
+  var input, dependent;
 
   before(function () {
+    dependent = unwire('../lib/dependent');
     dependent.__set__('fs', fs);
+  });
+
+  after(function () {
+    dependent.__unwire__();
   });
 
   it('should edit dependencies', function (done) {

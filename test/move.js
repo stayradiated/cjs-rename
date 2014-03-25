@@ -1,15 +1,20 @@
 'use strict';
 
 var assert = require('assert');
-var rewire = require('rewire');
+var unwire = require('unwire');
 var fs     = require('./mock_fs');
-
-var move = rewire('../lib/move');
 
 describe('move', function () {
 
+  var move;
+
   before(function () {
+    move = unwire('../lib/move');
     move.__set__('fs', fs);
+  });
+
+  after(function () {
+    move.__unwire__();
   });
 
   it('should move a file from one place to another', function (done) {
