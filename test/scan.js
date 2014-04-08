@@ -34,8 +34,8 @@ describe('scan', function () {
       };
 
       var expected = [
-        { from: '/pass.js', to: '/done.js' },
-        { from: '/pass.coffee', to: '/done.coffee' }
+        { from: '/pass.js', to: '/done.js', move: true },
+        { from: '/pass.coffee', to: '/done.coffee', move: true }
       ];
 
       testPath(options, expected);
@@ -51,7 +51,7 @@ describe('scan', function () {
       };
 
       var expected = [
-        { from: '/pass.js', to: '/done.js' }
+        { from: '/pass.js', to: '/done.js', move: true }
       ];
 
       testPath(options, expected);
@@ -67,8 +67,8 @@ describe('scan', function () {
       };
 
       var expected = [
-        { from: '/pass.js', to: '/done.js', },
-        { from: '/pass.coffee', to: '/done.js', }
+        { from: '/pass.js', to: '/done.js', move: true },
+        { from: '/pass.coffee', to: '/done.js', move: true }
       ];
 
       testPath(options, expected);
@@ -84,7 +84,22 @@ describe('scan', function () {
       };
 
       var expected = [
-        { from: '/folder/pass.js', to: '/folder/done.js' }
+        { from: '/folder/pass.js', to: '/folder/done.js', move: true }
+      ];
+
+      testPath(options, expected);
+
+    });
+
+    it('should match files that do not exist', function () {
+      
+      var options = {
+        from: '/missing.js',
+        to: '/done.js'
+      };
+
+      var expected = [
+        { from: '/missing.js', to: '/done.js', move: false }
       ];
 
       testPath(options, expected);
@@ -109,9 +124,9 @@ describe('scan', function () {
       };
 
       var expected = [
-        { from: '/pass.js', to: '/done.js' },
-        { from: '/pass.coffee', to: '/done.coffee' },
-        { from: '/folder/pass.js', to: '/folder/done.js' }
+        { from: '/pass.js', to: '/done.js', move: true },
+        { from: '/pass.coffee', to: '/done.coffee', move: true },
+        { from: '/folder/pass.js', to: '/folder/done.js', move: true }
       ];
 
       testSearch(options, expected);
@@ -127,8 +142,8 @@ describe('scan', function () {
       };
 
       var expected = [
-        { from: '/pass.js', to: '/done.js' },
-        { from: '/folder/pass.js', to: '/folder/done.js' }
+        { from: '/pass.js', to: '/done.js', move: true },
+        { from: '/folder/pass.js', to: '/folder/done.js', move: true }
       ];
 
       testSearch(options, expected);
@@ -144,9 +159,9 @@ describe('scan', function () {
       };
 
       var expected = [
-        { from: '/pass.js', to: '/done.js' },
-        { from: '/pass.coffee', to: '/done.js' },
-        { from: '/folder/pass.js', to: '/folder/done.js' }
+        { from: '/pass.js', to: '/done.js', move: true },
+        { from: '/pass.coffee', to: '/done.js', move: true },
+        { from: '/folder/pass.js', to: '/folder/done.js', move: true }
       ];
 
       testSearch(options, expected);
@@ -162,8 +177,8 @@ describe('scan', function () {
       };
 
       var expected = [
-        { from: '/pass.js', to: '/done.js' },
-        { from: '/folder/pass.js', to: '/folder/done.js' }
+        { from: '/pass.js', to: '/done.js', move: true },
+        { from: '/folder/pass.js', to: '/folder/done.js', move: true }
       ];
 
       testSearch(options, expected);

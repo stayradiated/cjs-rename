@@ -54,22 +54,28 @@ function command (from, to, source) {
       console.log(RED + 'Drymode:' + RESET, 'will not save changes');
     }
 
-    if (app.files.length === 0) return;
-    console.log('\nMoving:');
-
-    app.files.forEach(function (file) { 
-      var from = Path.relative(cwd, file.from);
-      var to   = Path.relative(cwd, file.to);
-      console.log('-',  BLUE + from, RESET + '>' + BLUE, to, RESET);
+    var files = app.files.filter(function (file) {
+      return file.move;
     });
 
-    if (app.changes.length === 0) return;
-    console.log('\nFixing:');
+    if (files.length) {
+      console.log('\nMoving:');
 
-    app.changes.forEach(function (change) {
-      var path = Path.relative(cwd, change.path);
-      console.log('- [' + change.count + ']' + BLUE, path, RESET);
-    });
+      files.forEach(function (file) { 
+        var from = Path.relative(cwd, file.from);
+        var to   = Path.relative(cwd, file.to);
+        console.log('-',  BLUE + from, RESET + '>' + BLUE, to, RESET);
+      });
+    }
+
+    if (app.changes.length) {
+      console.log('\nFixing:');
+
+      app.changes.forEach(function (change) {
+        var path = Path.relative(cwd, change.path);
+        console.log('- [' + change.count + ']' + BLUE, path, RESET);
+      });
+    }
 
   });
 

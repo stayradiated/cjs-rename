@@ -225,6 +225,11 @@ rename.save(function (err) {
 
 ## Changelog
 
+### 0.0.8
+
+- Add support for moving files that do not exist (e.g. fixing a file that has
+  already been moved).
+
 ### 0.0.7
 
 - Use 'unwire' instead of 'rewire' for tests.
