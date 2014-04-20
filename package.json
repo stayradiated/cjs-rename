@@ -1,6 +1,6 @@
 {
   "name": "cjs-rename",
-  "version": "0.0.8",
+  "version": "0.0.9",
   "description": "Rename a CJS file thing",
   "main": "lib/index.js",
   "scripts": {
@@ -32,6 +32,7 @@
     "xtnd": "0.0.11"
   },
   "devDependencies": {
+    "chai": "^1.9.1",
     "mocha": "1.17.x",
     "ncp": "0.5.x",
     "unwire": "^0.0.4"

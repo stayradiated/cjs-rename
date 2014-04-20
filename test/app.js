@@ -1,6 +1,6 @@
 'use strict';
 
-var assert = require('assert');
+var assert = require('chai').assert;
 var unwire = require('unwire');
 var App = require('../lib/index');
 var ncp = require('ncp');
@@ -73,8 +73,9 @@ describe('app', function () {
       { path: TESTDIR + '/quotes.js', count: 2,
         contents: fs.readFileSync(EXPECTED + '/quotes.js').toString() },
       { path: TESTDIR + '/folder/parent.js', count: 1,
-        contents: fs.readFileSync(EXPECTED + '/folder/parent.js').toString() }
-
+        contents: fs.readFileSync(EXPECTED + '/folder/parent.js').toString() },
+      { path: TESTDIR + '/regex.js', count: 1,
+        contents: fs.readFileSync(EXPECTED + '/regex.js').toString() }
     ];
 
     var app = new App({

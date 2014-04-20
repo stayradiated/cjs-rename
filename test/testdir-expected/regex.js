@@ -6,4 +6,4 @@ require('replace');
 require(1337);
 
 // using require as a method
-app.require('./replace');
+app.require('./done');

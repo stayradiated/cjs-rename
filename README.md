@@ -225,6 +225,10 @@ rename.save(function (err) {
 
 ## Changelog
 
+### 0.0.9
+
+- Change regex prefix so that it can match `something(require('...'));`.
+
 ### 0.0.8
 
 - Add support for moving files that do not exist (e.g. fixing a file that has

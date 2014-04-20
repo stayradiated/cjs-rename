@@ -1,7 +1,7 @@
 'use strict';
 
 var Path = require('../lib/path');
-var assert = require('assert');
+var assert = require('chai').assert;
 
 describe('path', function () {
 

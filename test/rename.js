@@ -1,6 +1,6 @@
 'use strict';
 
-var assert = require('assert');
+var assert = require('chai').assert;
 var unwire = require('unwire');
 var fs     = require('./mock_fs');
 
