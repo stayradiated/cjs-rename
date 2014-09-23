@@ -1,7 +1,7 @@
 {
   "name": "cjs-rename",
-  "version": "0.0.9",
-  "description": "Rename a CJS file thing",
+  "version": "0.0.10",
+  "description": "Move your JS files and it will update any dependent files with the new path.",
   "main": "lib/index.js",
   "scripts": {
     "test": "mocha -R spec --bail test/"
@@ -26,15 +26,15 @@
     "common"
   ],
   "dependencies": {
-    "commander": "2.1.x",
-    "bluebird": "1.0.x",
-    "recursive-readdir-filter": "0.0.x",
-    "xtnd": "0.0.11"
+    "commander": "^2.3.0",
+    "bluebird": "^2.3.2",
+    "recursive-readdir-filter": "^0.0.3",
+    "xtnd": "^0.0.12"
   },
   "devDependencies": {
     "chai": "^1.9.1",
-    "mocha": "1.17.x",
-    "ncp": "0.5.x",
+    "mocha": "^1.21.4",
+    "ncp": "^0.6.0",
     "unwire": "^0.0.4"
   }
 }
